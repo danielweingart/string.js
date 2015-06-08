@@ -420,6 +420,53 @@
       })
     })
 
+    describe('- splitRight(seperator, [maxsplit])', function() {
+      it('should return an array of strings, split at seperator, at most maxsplit+1 elements', function() {
+        // by a char
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a|b|c|d').splitRight('|'))
+        ARY_EQ (['a|b|c', 'd'], S('a|b|c|d').splitRight('|', 1))
+        ARY_EQ (['a|b', 'c', 'd'], S('a|b|c|d').splitRight('|', 2))
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a|b|c|d').splitRight('|', 3))
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a|b|c|d').splitRight('|', 4))
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a|b|c|d').splitRight('|', 1000))
+        ARY_EQ (['a|b|c|d'], S('a|b|c|d').splitRight('|', 0))
+        ARY_EQ (['a||b||c', '', 'd'], S('a||b||c||d').splitRight('|', 2))
+        ARY_EQ (['', ' begincase'], S('| begincase').splitRight('|'))
+        ARY_EQ (['endcase ', ''], S('endcase |').splitRight('|'))
+        ARY_EQ (['', 'bothcase', ''], S('|bothcase|').splitRight('|'))
+
+        ARY_EQ (['a\x00\x00b', 'c', 'd'], S('a\x00\x00b\x00c\x00d').splitRight('\x00', 2))
+
+        // by string
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a//b//c//d').splitRight('//'))
+        ARY_EQ (['a//b//c', 'd'], S('a//b//c//d').splitRight('//', 1))
+        ARY_EQ (['a//b', 'c', 'd'], S('a//b//c//d').splitRight('//', 2))
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a//b//c//d').splitRight('//', 3))
+        ARY_EQ (['a', 'b', 'c', 'd'], S('a//b//c//d').splitRight('//', 4))
+        ARY_EQ (['a//b//c//d'], S('a//b//c//d').splitRight('//', 0))
+        ARY_EQ (['a////b////c', '', 'd'], S('a////b////c////d').splitRight('//', 2))
+        ARY_EQ (['', ' begincase'], S('test begincase').splitRight('test'))
+        ARY_EQ (['endcase ', ''], S('endcase test').splitRight('test'))
+        ARY_EQ (['', ' bothcase ', ''], S('test bothcase test').splitRight('test'))
+        ARY_EQ (['ab', 'c'], S('abbbc').splitRight('bb'))
+        ARY_EQ (['', ''], S('aaa').splitRight('aaa'))
+        ARY_EQ (['aaa'], S('aaa').splitRight('aaa', 0))
+        ARY_EQ (['ab', 'ab'], S('abbaab').splitRight('ba'))
+        ARY_EQ (['aaaa'], S('aaaa').splitRight('aab'))
+        ARY_EQ ([''], S('').splitRight('aaa'))
+        ARY_EQ (['aa'], S('aa').splitRight('aaa'))
+        ARY_EQ (['bbob', 'A'], S('bbobbbobbA').splitRight('bbobb'))
+        ARY_EQ (['', 'B', 'A'], S('bbobbBbbobbA').splitRight('bbobb'))
+
+        // argument type
+        // self.checkraises(TypeError, 'hello', 'splitRight', 42, 42, 42)
+
+        // null case
+        // self.checkraises(ValueError, 'hello', 'splitRight', '')
+        // self.checkraises(ValueError, 'hello', 'splitRight', '', 0)
+      })
+    })
+
     describe('- strip([string1],[string2],...)', function() {
       it('should return the new string with all occurrences of [string1],[string2],... removed', function() {
         T (S('which ones will it take out one wonders').strip('on', 'er').s === 'which es will it take out e wds');
@@ -545,7 +592,7 @@
 
         var str = "{{greet }} {{ name}}! How are you doing during the year of {{  date-year }}?";
         EQ (S(str).template(values).s, 'Hello JP! How are you doing during the year of 2013?')
-						
+
         str = "Hello #{name}! How are you doing during the year of #{date-year}?"
         EQ (S(str).template(values, '#{', '}').s, 'Hello JP! How are you doing during the year of 2013?')
 
@@ -614,7 +661,7 @@
         T (S('*').times(3).s === '***');
       })
     })
- 
+
     describe('- titleCase()', function() {
       it('should upperCase all words in a camel cased string', function() {
         EQ (S('dataRate').titleCase().s, 'DataRate')
